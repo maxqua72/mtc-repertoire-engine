@@ -1,6 +1,7 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { spawn } from 'child_process';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid'
 //import store from './config.js';
 
 const config = JSON.parse(process.env.CONFIG);
@@ -24,6 +25,8 @@ const setupBootEngine = function (currengine, ws) {
   });
 }
 
+
+
 const setupStartEngine = function (currengine, ws) {
   engine = spawn(path.normalize(currengine.path + currengine.file));
   engine.stdout.on('data', (data) => {
@@ -33,8 +36,11 @@ const setupStartEngine = function (currengine, ws) {
       
       if (ws) {
         for (let line of lines) {
-          if(line) console.log('<--- : ' + line);
-          ws.send(`Echo: ${line}`);
+          if(line){
+            console.log('<--- : ' + line); 
+            ws.send(JSON.stringify({msgtype:'uci.ack', data:line}));
+          } 
+          
         }
       }
 
@@ -53,21 +59,45 @@ const setupInfoEngine = function () {
 
 }
 
+/**
+ * Returns the list of available engines
+ */
+const setupGetAvailableEngines = function(ws) {
+  process.send({ type: 'get-available-engines', clientId:ws.clientId})
+
+}
+
 process.on('message', (message) => {
   if (message.type === 'config-value') {
     console.log(`Valore ricevuto: ${message.key} = ${message.value}`);
     config[message.key] = message.value
   } else if (message.type === 'config') {
     config = message.value
-  } else if (message.msgtype.toString() === 'setup') {
-    if (message.cmd.toString() === 'start-engine') {
-      setupStartEngine(message.engine)
+  } else if(message.type === 'get-available-engines-ack'){
+    console.log('=== <=== ' + message.type + '/' + message.clientId)
+    const clientsArray = Array.from(wss.clients);
+    
+    const client = clientsArray.find(client => client.clientId === message.clientId);
+    
+    if (client && client.readyState === WebSocket.OPEN) {
+      //console.log('client ' + JSON.stringify(client) + ' state: ' + client.readyState)
+      client.send(JSON.stringify({ msgtype: 'setup.get-available-engines-ack', data: message.engines }));
     }
+      
+     for(let client of clientsArray){
+      console.log('client: ' + client.clientId + " === " + message.clientId)
+      if (client && client.readyState === WebSocket.OPEN) {
+        //console.log('client ' + JSON.stringify(client) + ' state: ' + client.readyState)
+        //client.send(JSON.stringify({ msgtype: 'setup.get-available-engines-ack', data: message.engines }));
+      }
+     }
   }
 });
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
+  console.log('ws client ' + JSON.stringify(ws) + ' state: ' + ws.readyState)
+  ws.clientId = uuidv4()
   ws.send('connected to WebSocket!');
 
   ws.on('close', () => {
@@ -75,10 +105,10 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('message', (msg) => {
-    let message = JSON.parse(msg)
+    
     console.log('Received: ' + msg);
-
-    ws.send(`Echo: ${msg}`);
+    let message = JSON.parse(msg)
+    //ws.send(`Echo: ${msg}`);
 
     if (message == 'start') {
 
@@ -143,9 +173,15 @@ wss.on('connection', (ws) => {
     } else if (message.msgtype === 'setup' && message.cmd === 'start-engine') {
       console.log('---> setup: start-engine');
       setupStartEngine(message.engine, ws)
+
+    } else if(message.msgtype === 'setup.get-available-engines'){
+      console.log('===> setup: get-available-engines');
+      setupGetAvailableEngines(ws)
+
     } else if (message.msgtype === 'uci') {
       console.log('---> uci: ' + message.ucicmd);
       engine.stdin.write(message.ucicmd);
+
     }
 
   });

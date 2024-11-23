@@ -13,6 +13,14 @@ ws.onopen = () => {
     console.log("UI connected with wss server")
 };
 
+document.getElementById('sendAvailableEngines').addEventListener('click', () => {
+    const message = {
+        msgtype: 'setup.get-available-engines'
+    }
+    //console.log(JSON.stringify(message))
+    ws.send(JSON.stringify(message));
+});
+
 document.getElementById('sendBoot').addEventListener('click', () => {
     const message = {
         msgtype: 'setup',
@@ -87,6 +95,34 @@ document.getElementById('sendGo').addEventListener('click', () => {
     }
     ws.send(JSON.stringify(message));
     depth.value = ''; // Clear the input field after sending
+});
+
+document.getElementById('sendStop').addEventListener('click', () => {
+    const message = {
+        msgtype: 'uci',
+        ucicmd: 'stop' + '\n',
+        engine: {
+            name: 'Stockfish 17',
+            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
+            file: "stockfish-windows-x86-64-avx2.exe",
+            options: []
+        }
+    }
+    ws.send(JSON.stringify(message));
+});
+
+document.getElementById('sendQuit').addEventListener('click', () => {
+    const message = {
+        msgtype: 'uci',
+        ucicmd: 'quit' + '\n',
+        engine: {
+            name: 'Stockfish 17',
+            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
+            file: "stockfish-windows-x86-64-avx2.exe",
+            options: []
+        }
+    }
+    ws.send(JSON.stringify(message));
 });
 
 

@@ -85,6 +85,10 @@ app.whenReady().then(() => {
     } else if (message.type === 'get-config') {
       const config = store.store;
       server.send({ type: 'config', store: config });
+    } else if (message.type === 'get-available-engines') {
+      console.log('=== ===> ' + message.type + '/' + message.clientId)
+      let availableEngines = store.get('engines')
+      server.send({ type: 'get-available-engines-ack', engines: availableEngines , clientId: message.clientId});
     }
   })
 
