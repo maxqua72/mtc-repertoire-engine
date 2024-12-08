@@ -89,6 +89,15 @@ app.whenReady().then(() => {
       console.log('=== ===> ' + message.type + '/' + message.clientId)
       let availableEngines = store.get('engines')
       server.send({ type: 'get-available-engines-ack', engines: availableEngines , clientId: message.clientId});
+    } else if (message.type === 'get-current-engine') {
+      console.log('=== ===> ' + message.type + '/' + message.clientId)
+      let engines = store.get('engines')
+      let idx = store.get('current-engine')
+      if(engines.length > idx){
+        let current = engines[idx]
+        server.send({ type: 'get-current-engine-ack', engine: current , clientId: message.clientId});
+      }
+      
     }
   })
 

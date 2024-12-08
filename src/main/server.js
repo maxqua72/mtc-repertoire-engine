@@ -27,29 +27,67 @@ const setupBootEngine = function (currengine, ws) {
 
 
 
-const setupStartEngine = function (currengine, ws) {
-  engine = spawn(path.normalize(currengine.path + currengine.file));
-  engine.stdout.on('data', (data) => {
+const setupStartEngine = async function (currengine, ws) {
+  
+  if(engine === null){
     
-    if (data.toString()) {
-      let lines = data.toString().split(/\r?\n|\r|\n/g);
-      
-      if (ws) {
-        for (let line of lines) {
-          if(line){
-            console.log('<--- : ' + line); 
-            ws.send(JSON.stringify({msgtype:'uci.ack', data:line}));
-          } 
-          
-        }
-      }
+    console.log(`Process spawning...` + ws.clientId);
+    engine = spawn(path.normalize(currengine.path + currengine.file));
 
-    }
-  })
-  engine.stderr.on('data', (data) => { });
-  engine.on('close', (code) => {
-    console.log(`Process exited with code ${code}`);
-  });
+    engine.stdout.on('data', (data) => {
+      
+      if (data.toString()) {
+        let lines = data.toString().split(/\r?\n|\r|\n/g);
+        
+        if (ws) {
+          console.log(`Process messaging...` + ws.clientId);
+          for (let line of lines) {
+            if(line){
+              console.log('<--- : ' + line); 
+              ws.send(JSON.stringify({msgtype:'uci.ack', data:line}));
+            } 
+            
+          }
+        }
+
+      }
+    })
+    
+    engine.stderr.on('data', (data) => { });
+
+    engine.stdin.on('error', (err) => {
+      if (err.code === 'EPIPE') {
+        console.error('Errore: write EPIPE');
+      }
+    });
+    
+    engine.on('spawn', () => {
+      console.log(`Process spawned ok`);
+      // ack the boot was ok
+      console.log('sending setup.boot-engine-ack')
+      ws.send(JSON.stringify({msgtype:'setup.boot-engine-ack'}))
+      
+    });
+
+    engine.on('close', (code) => {
+      console.log(`Process exited with code ${code}` + ws.clientId);
+      engine = null
+    });
+    
+
+  } else {
+    //engine.stdin.write('quit\n');
+    await closeEngine()
+    
+    setupStartEngine(currengine, ws)
+  }
+}
+
+function closeEngine() { 
+  return new Promise((resolve) => { 
+    engine.stdin.write('quit\n')
+    engine.once('close', () => { resolve() }) 
+  }) 
 }
 
 /**
@@ -64,6 +102,11 @@ const setupInfoEngine = function () {
  */
 const setupGetAvailableEngines = function(ws) {
   process.send({ type: 'get-available-engines', clientId:ws.clientId})
+
+}
+
+const setupGetCurrentEngine = function(ws) {
+  process.send({ type: 'get-current-engine', clientId:ws.clientId})
 
 }
 
@@ -91,22 +134,34 @@ process.on('message', (message) => {
         //client.send(JSON.stringify({ msgtype: 'setup.get-available-engines-ack', data: message.engines }));
       }
      }
+  } else if(message.type === 'get-current-engine-ack'){
+    console.log('=== <=== ' + message.type + '/' + message.clientId)
+    const clientsArray = Array.from(wss.clients);
+    const client = clientsArray.find(client => client.clientId === message.clientId);
+    
+    if (client && client.readyState === WebSocket.OPEN) {
+      //console.log('client ' + JSON.stringify(client) + ' state: ' + client.readyState)
+      client.send(JSON.stringify({ msgtype: 'setup.get-current-engine-ack', data: message.engine }));
+    }
   }
 });
 
 wss.on('connection', (ws) => {
-  console.log('Client connected');
-  console.log('ws client ' + JSON.stringify(ws) + ' state: ' + ws.readyState)
   ws.clientId = uuidv4()
-  ws.send('connected to WebSocket!');
+
+  console.log('Client connected ' + ws.clientId);
+  //console.log('ws client ' + JSON.stringify(ws) + ' state: ' + ws.readyState)
+  
+  //ws.send('connected to WebSocket!');
+  ws.send(JSON.stringify({msgtype:'setup.connected'}))
 
   ws.on('close', () => {
-    console.log('Client disconnected');
+    console.log('Client disconnected '+ ws.clientId);
   });
 
   ws.on('message', (msg) => {
     
-    console.log('Received: ' + msg);
+    console.log('Received: ' + msg + ' from ' + ws.clientId);
     let message = JSON.parse(msg)
     //ws.send(`Echo: ${msg}`);
 
@@ -118,11 +173,7 @@ wss.on('connection', (ws) => {
       // Leggi l'output del processo da stdout
       engine.stdout.on('data', (data) => {
         console.log('data from engine: (' + typeof (data) + ') ' + data);
-        /*
-                for (var property in data) {
-                  console.log(property + ': ' + data[property]+'; ');
-                }
-        */
+        
         let infodepth = "info depth ([\\w]*) seldepth [\\w]* multipv ([\\w]*) score (cp ([\\-\\w]*)|mate ([\\w*])) [\\s\\w]*pv ([\\w]*)\\s*([\\s\\w]*)";
         let option = "option name ([\\w]*) type ([\\w]*) default ([^\\s]*)(?: min ([\\w]*) max ([\\w]*))?";
 
@@ -170,6 +221,9 @@ wss.on('connection', (ws) => {
         //ws.send(`Process exited with code ${code}`);
         console.log(`Process exited with code ${code}`);
       });
+      
+      
+
     } else if (message.msgtype === 'setup' && message.cmd === 'start-engine') {
       console.log('---> setup: start-engine');
       setupStartEngine(message.engine, ws)
@@ -178,9 +232,20 @@ wss.on('connection', (ws) => {
       console.log('===> setup: get-available-engines');
       setupGetAvailableEngines(ws)
 
+    } else if(message.msgtype === 'setup.get-current-engine'){
+      console.log('===> setup: get-current-engine');
+      setupGetCurrentEngine(ws)
+
+    } else if (message.msgtype === 'setup.boot-engine') {
+      console.log('---> setup: boot-engine ' + ws.clientId);
+      setupStartEngine(message.engine, ws)
+
     } else if (message.msgtype === 'uci') {
       console.log('---> uci: ' + message.ucicmd);
-      engine.stdin.write(message.ucicmd);
+      try{
+        engine.stdin.write(message.ucicmd);
+      } catch(e){}
+      
 
     }
 

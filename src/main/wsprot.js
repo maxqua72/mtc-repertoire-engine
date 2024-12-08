@@ -7,7 +7,8 @@
  *                                    stop engine if different
  *                                    start engine
  *        <-------------------------- engine data
- * 
+ * get-current-engine -------------->
+ *        <-------------------------- engine data
  */
 
 const schemaClient2Server = {
@@ -38,7 +39,7 @@ const schemaClient2Server = {
         cmd: {
             type: 'string',
             enum: [ 'discover-engine', 'start-engine', 'restart-engine',
-                    'get-available-engines', 'choose-engine', , 'get-current-engine',
+                    'get-available-engines', 'choose-engine', 'get-current-engine',
                     'update-config', // broacast ai client 
             ]
         },
