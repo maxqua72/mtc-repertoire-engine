@@ -10,7 +10,7 @@ const config = JSON.parse(process.env.CONFIG);
 const PORT = 28080
 const wss = new WebSocketServer({ port: PORT });
 
-let engineInfo = config.engines[config['current-engine']]
+let engineInfo = null; //config.engines[config['current-engine']]
 let engine = null
 //console.log(JSON.stringify(store.store))
 
@@ -32,7 +32,7 @@ const setupStartEngine = async function (currengine, ws) {
   if(engine === null){
     
     console.log(`Process spawning...` + ws.clientId);
-    engine = spawn(path.normalize(currengine.path + currengine.file));
+    engine = spawn(currengine.path);
 
     engine.stdout.on('data', (data) => {
       
@@ -93,8 +93,96 @@ function closeEngine() {
 /**
  * Execute the engine boot to catch engine info
  */
-const setupInfoEngine = function () {
+const setupTestEngine = async function (currengine, ws, oncompleted) {
+  if(engine === null){
+    console.log(`setupTestEngine: ` + currengine);
+    console.log(`Process spawning...` + ws.clientId);
+    engine = spawn(currengine.path);
+    let engineData = {
+      path: currengine.path, 
+      file: currengine.file, 
+      name: '', 
+      default: []
+    }
+    engine.stdout.on('data', (data) => {
+      
+      if (data.toString()) {
+        let lines = data.toString().split(/\r?\n|\r|\n/g);
+        
+        if (ws) {
+          console.log(`Process messaging...` + ws.clientId);
+          for (let line of lines) {
+            if(line){
+              console.log('<--- : ' + line); 
+              const parts = line.trim().split(/\s+/g);
 
+              if (parts[0] === 'uciok') {
+                // return data and close
+                oncompleted(engineData)
+                engine.stdin.write('quit\n');
+
+              } else if (parts[0] === 'id' && parts[1] === 'name') {
+                // capture engine name
+                engineData.name = parts.slice(2).join(' ')
+
+              } else if (parts[0] === 'option') {
+                // capture option 
+                let option = "option name ([\\w\\s]+) type ([\\w]+) default ([^\\s]*)(?: min ([\\w]*) max ([\\w]*))?";
+                const match = line.match(option);
+                if (match) {
+                  //console.log("--->" + match[1] + " " + match[3])
+                  let def = match[3]
+                  if(match[2] === 'spin') def = Number(def)
+                  else if(match[2] === 'check') def = (def === 'true')
+                  let defopt = { 
+                    name: match[1], 
+                    type: match[2], 
+                    default: def, 
+                    min: match[4], 
+                    max: match[5] }
+                  engineData.default.push(defopt)
+                }
+                //this.engineName = parts.slice(2).join(' ');
+              }else {
+
+              }
+              //ws.send(JSON.stringify({msgtype:'uci.ack', data:line}));
+            } 
+            
+          }
+        }
+
+      }
+    })
+    
+    engine.stderr.on('data', (data) => { });
+
+    engine.stdin.on('error', (err) => {
+      if (err.code === 'EPIPE') {
+        console.error('Errore: write EPIPE');
+      }
+    });
+    
+    engine.on('spawn', () => {
+      console.log(`Process spawned ok`);
+      // ack the boot was ok
+      //console.log('sending setup.boot-engine-ack')
+      //ws.send(JSON.stringify({msgtype:'setup.boot-engine-ack'}))
+      engine.stdin.write('uci\n');
+    });
+
+    engine.on('close', (code) => {
+      console.log(`Process exited with code ${code}` + ws.clientId);
+      engine = null
+    });
+    
+
+  } else {
+    //engine.stdin.write('quit\n');
+    await closeEngine()
+    
+    setupTestEngine(currengine, ws, oncompleted)
+  }
 }
 
 /**
@@ -239,6 +327,12 @@ wss.on('connection', (ws) => {
     } else if (message.msgtype === 'setup.boot-engine') {
       console.log('---> setup: boot-engine ' + ws.clientId);
       setupStartEngine(message.engine, ws)
+
+    } else if (message.msgtype === 'setup.test-engine') {
+      console.log('---> setup: test-engine ' + ws.clientId);
+      setupTestEngine(message.data, ws, function(data){
+        ws.send(JSON.stringify({msgtype:'setup.test-engine-ack', data:data}))
+      })
 
     } else if (message.msgtype === 'uci') {
       console.log('---> uci: ' + message.ucicmd);

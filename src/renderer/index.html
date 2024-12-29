@@ -1,30 +1,13 @@
 <!DOCTYPE html>
 <html>
-<head>
-  
-  <title>WebSocket Electron App</title>
-</head>
-<body>
-  <h1>WebSocket Messages</h1>
-  <div><button id="sendAvailableEngines">Engines</button></div>
-  <div><button id="sendBoot">Boot</button></div>
-  <div><button id="sendUci">Uci</button></div>
-  <div><button id="sendNewGame">New Game</button></div>
-  <div>
-    <input type="text" id="fen" placeholder="FEN">
-    <button id="sendPosition">Go</button>
-  </div>
-  <div>
-    <input type="text" id="depth" placeholder="depth">
-    <button id="sendGo">Go</button>
-  </div>
-  <div><button id="sendStop">Stop</button></div>
-  <div><button id="sendQuit">Quit</button></div>
-  
-  
-  
-  <ul id="messages"></ul>
-
-  <script type="module" src="./renderer.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello Max 2!</title>
+  </head>
+  <body>
+    <div id="app">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <script type="module" src="./renderer.js"></script>
+  </body>
 </html>

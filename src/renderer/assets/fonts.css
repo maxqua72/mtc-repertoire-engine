@@ -1,0 +1,9 @@
+/* Font for Chess */
+@font-face {
+    font-family: "chess";
+    font-weight: 400;
+    font-style: normal;
+    font-display: auto;
+    unicode-range: U+000-5FF;
+    src: local("lichess.chess"), url("src/renderer/assets/fonts/lichess.chess.woff2") format("woff2");
+  }

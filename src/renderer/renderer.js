@@ -1,157 +1,57 @@
-
-const ws = new WebSocket('ws://localhost:28080');
-
-
-ws.onmessage = (event) => {
-    const messages = document.getElementById('messages');
-    const message = document.createElement('li');
-    message.textContent = event.data;
-    messages.appendChild(message);
-};
-
-ws.onopen = () => {
-    console.log("UI connected with wss server")
-};
-
-document.getElementById('sendAvailableEngines').addEventListener('click', () => {
-    const message = {
-        msgtype: 'setup.get-available-engines'
-    }
-    //console.log(JSON.stringify(message))
-    ws.send(JSON.stringify(message));
-});
-
-document.getElementById('sendBoot').addEventListener('click', () => {
-    const message = {
-        msgtype: 'setup',
-        cmd: 'start-engine',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-    //console.log(JSON.stringify(message))
-    ws.send(JSON.stringify(message));
-});
-
-document.getElementById('sendUci').addEventListener('click', () => {
-    const message = {
-        msgtype: 'uci',
-        ucicmd: 'uci' + '\n',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-
-    ws.send(JSON.stringify(message));
-});
-
-document.getElementById('sendNewGame').addEventListener('click', () => {
-    const message = {
-        msgtype: 'uci',
-        ucicmd: 'ucinewgame' + '\n',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-    ws.send(JSON.stringify(message));
-});
-
-document.getElementById('sendPosition').addEventListener('click', () => {
-    const fen = document.getElementById('fen');
-    const message = {
-        msgtype: 'uci',
-        ucicmd: 'position fen ' + fen.value + '\n',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-    ws.send(JSON.stringify(message));
-    fen.value = ''; // Clear the input field after sending
-});
-
-document.getElementById('sendGo').addEventListener('click', () => {
-    const depth = document.getElementById('depth');
-    const message = {
-        msgtype: 'uci',
-        ucicmd: 'go depth ' + depth.value + '\n',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-    ws.send(JSON.stringify(message));
-    depth.value = ''; // Clear the input field after sending
-});
-
-document.getElementById('sendStop').addEventListener('click', () => {
-    const message = {
-        msgtype: 'uci',
-        ucicmd: 'stop' + '\n',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-    ws.send(JSON.stringify(message));
-});
-
-document.getElementById('sendQuit').addEventListener('click', () => {
-    const message = {
-        msgtype: 'uci',
-        ucicmd: 'quit' + '\n',
-        engine: {
-            name: 'Stockfish 17',
-            path: "C:\\Users\\max\\Documents\\mindthecheck\\engines\\stockfish-17-win-avx2\\",
-            file: "stockfish-windows-x86-64-avx2.exe",
-            options: []
-        }
-    }
-    ws.send(JSON.stringify(message));
-});
+/**
+ * This file will automatically be loaded by vite and run in the "renderer" context.
+ * To learn more about the differences between the "main" and the "renderer" context in
+ * Electron, visit:
+ *
+ * https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes
+ *
+ * By default, Node.js integration in this file is disabled. When enabling Node.js integration
+ * in a renderer process, please be aware of potential security implications. You can read
+ * more about security risks here:
+ *
+ * https://electronjs.org/docs/tutorial/security
+ *
+ * To enable Node.js integration in this file, open up `main.js` and enable the `nodeIntegration`
+ * flag:
+ *
+ * ```
+ *  // Create the browser window.
+ *  mainWindow = new BrowserWindow({
+ *    width: 800,
+ *    height: 600,
+ *    webPreferences: {
+ *      nodeIntegration: true
+ *    }
+ *  });
+ * ```
+ */
 
 
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
-/*
+import '@fortawesome/fontawesome-free/css/fontawesome.css'
+import '@fortawesome/fontawesome-free/css/solid.css'
+import '@fortawesome/fontawesome-free/css/regular.css'
 
-ipcRenderer.on('server-message', (event, message) => {
-    if (message.type === 'todos') {
-        //updateTodoList(message.todos);
-    }
-});
-*/
-/*
-function addTodo() {
-  const todo = { id: Date.now(), text: document.getElementById('todo-input').value };
-  ws.send(JSON.stringify({ type: 'add-todo', todo }));
-}
+import './assets/fonts.css'
 
-function removeTodo(id) {
-  ws.send(JSON.stringify({ type: 'remove-todo', id }));
-}
-*/
+//import 'chessground/assets/chessground.base.css'
+//import 'chessground/assets/chessground.brown.css'
+//import 'chessground/assets/chessground.cburnett.css'
+import '../../../node_modules/chessground/assets/chessground.base.css'
+import '../../../node_modules/chessground/assets/chessground.brown.css'
+import '../../../node_modules/chessground/assets/chessground.cburnett.css'
 
+import { createApp } from 'vue';
+import { createPinia } from 'pinia'
+import { useManagerStore } from './stores/manager'
+import App from './App.vue';
 
-//document.getElementById('add-todo-button').onclick = addTodo;
+const app = createApp(App)
 
-/*
-// Gestione della configurazione
-function updateConfig(newConfig) {
-    ipcRenderer.send('update-config', newConfig);
-}
-    */
+app.use(createPinia())
+app.mount('#app')
+
+useManagerStore().init()
+
