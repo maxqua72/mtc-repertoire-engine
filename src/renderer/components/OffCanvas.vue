@@ -87,6 +87,7 @@ export default {
                             <i class="fas fa-circle me-2" :class="[{'text-success': (index === mg.currEngineIdx)}]"></i>
                             {{ item.name }}
                         </a> 
+                        <i class="fas fa-waste"/>
                     </li>
                 </ul>
             </div>

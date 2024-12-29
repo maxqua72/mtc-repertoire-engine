@@ -47,7 +47,9 @@ export default {
       
       <NoEngine v-if="noengines === true"/>
       <WithEngine v-if="noengines === false"/>
-      <i class="fas fa-spinner fa-spin" v-if="noengines === null"></i>
+      <i class="fas fa-spinner fa-spin d-flex justify-content-center" 
+        style="font-size: 4rem;"
+        v-if="noengines === null"></i>
       
     </main>
   </div>

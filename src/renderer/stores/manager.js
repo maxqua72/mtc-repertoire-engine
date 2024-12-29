@@ -12,7 +12,8 @@ export const useManagerStore = defineStore("manager", {
         infoQueue: [],
         notifyQueue: 0,
         minDepth: 5,
-        maxPV: 1
+        maxPV: 1,
+        optionsUpdated: 0
     }),
     getters: {
         currEngine: (state) => state.engines[state.currEngineIdx],
@@ -66,6 +67,9 @@ export const useManagerStore = defineStore("manager", {
         notifyChange(){
             this.notify = (this.notify + 1)%64
         }, 
+        notifyOptionsUpdated(){
+            this.optionsUpdated = (this.optionsUpdated + 1)%64
+        },
         notifyQueueChange(){
             this.notifyQueue = (this.notifyQueue + 1)%2048
         }, 
@@ -111,6 +115,7 @@ export const useManagerStore = defineStore("manager", {
         isEvaluating(){
             return this.currStatus === 'evaluating'
         },
+        
         saveConfig(){
             const jsondata = JSON.stringify({
                 engines: this.engines, 
@@ -121,7 +126,13 @@ export const useManagerStore = defineStore("manager", {
         messageDispatcher(msg){
             console.log('Manager received message: ' + JSON.stringify(msg))
             if(msg.msgtype === 'setup.get-available-engines-ack'){
-                this.engines = (msg.data)?msg.data:[]
+                //this.engines = (msg.data)?msg.data:[]
+                let enginelist = (msg.data)?msg.data:[]
+                let newlist = []
+                for (let e of enginelist){
+                    newlist.push(new EngineData(e))
+                }
+                this.engines = newlist
                 console.log('Available engines: ' + JSON.stringify(this.engines))
                 this.notifyChange()
             } else if(msg.msgtype === 'setup.get-current-engine-ack'){
@@ -133,6 +144,7 @@ export const useManagerStore = defineStore("manager", {
                     }
                 }
                 this.notifyChange()
+                this.notifyOptionsUpdated()
             } else if(msg.msgtype === 'setup.test-engine-ack'){
                 let newEngine = msg.data
                 console.log('Engine test result: ' + JSON.stringify(newEngine))
@@ -144,6 +156,7 @@ export const useManagerStore = defineStore("manager", {
 
                 // notify change
                 this.notifyChange()
+                this.notifyOptionsUpdated()
             } else if(msg.msgtype === 'setup.boot-engine-ack'){
                 console.log('Engine test started ')
                 this.sendUci("uci")
@@ -229,6 +242,8 @@ export const useManagerStore = defineStore("manager", {
             } 
 
             result['isMate'] = (result.score.mate !== undefined) ? true : false; 
+
+            if(result.multipv === undefined) result.multipv = 1
 
             if(result.score === undefined){
                 return null

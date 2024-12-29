@@ -9,6 +9,7 @@ import OffCanvas from './OffCanvas.vue';
 import Options from './Options.vue';
 import { toPov, renderEval } from './MoveUtils.js'
 import { Chess, SQUARES } from 'chess.js'
+import { UCIOption, UCIParam } from './EngineData.js';
 export default {
     name: 'WithEngine',
     components: {
@@ -127,31 +128,29 @@ export default {
             }
         },
         'nLines.value'(){
-            let found = false
-            for(let opt of this.mg.currEngine.options){
-                if(opt.name === 'MultiPV'){
-                    if(opt.value !== this.nLines.value){
-                        opt.value = this.nLines.value
-                        found = true
+            for(let def of this.mg.currEngine.default){
+                if(def.name === 'MultiPV'){
+                    //uciopt = new UCIOption(def,this.nThreads.value)
+                    let toSave = this.mg.currEngine.addOption(def,this.nLines.value)
+                    if(toSave){
                         this.mg.saveConfig()
+                        this.mg.notifyOptionsUpdated()
                     }
-                    break
                 }
-            }
-            if(!found){
-                this.mg.currEngine.options
             }
         },
         'nThreads.value'(){
-            for(let opt of this.mg.currEngine.options){
-                if(opt.name === 'Threads'){
-                    if(opt.value !== this.nThreads.value){
-                        opt.value = this.nThreads.value
+            for(let def of this.mg.currEngine.default){
+                if(def.name === 'Threads'){
+                    //uciopt = new UCIOption(def,this.nThreads.value)
+                    let toSave = this.mg.currEngine.addOption(def,this.nThreads.value)
+                    if(toSave){
                         this.mg.saveConfig()
+                        this.mg.notifyOptionsUpdated()
                     }
-                    break
                 }
             }
+            
         }
 
     },
@@ -191,6 +190,10 @@ export default {
             this.reset()
             this.mg.startEval(this.fen, this.depth)
         },
+        stopEval(){
+            this.reset()
+            this.mg.stopEval()
+        },
         isReady(){
             return this.status === 'ready'
         }, 
@@ -202,7 +205,7 @@ export default {
             if(pv && pv.score){
                 let c = this.fen.includes(' w ') ? 'white' : 'black';
                 let cp = undefined
-                if (pv.score.cp) cp = toPov(c, pv.score.cp)
+                if (pv.score.cp !== undefined) cp = toPov(c, pv.score.cp)
                 if (cp !== undefined) {
                     bs = renderEval(cp)
                 } else if (pv.score.mate !== undefined) {

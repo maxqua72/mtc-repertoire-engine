@@ -127,7 +127,7 @@ const setupTestEngine = async function (currengine, ws, oncompleted) {
 
               } else if (parts[0] === 'option') {
                 // capture option 
-                let option = "option name ([\\w\\s]+) type ([\\w]+) default ([^\\s]*)(?: min ([\\w]*) max ([\\w]*))?";
+                let option = "option name ([\\w\\s]+) type ([\\w]+) default ([^\\s]*)(?: min ([\\w]*) max ([\\w]*))?" + "(?: (var .*))?" // + "(?: var ([^\s]*))*";
                 const match = line.match(option);
                 if (match) {
                   //console.log("--->" + match[1] + " " + match[3])
@@ -139,7 +139,23 @@ const setupTestEngine = async function (currengine, ws, oncompleted) {
                     type: match[2], 
                     default: def, 
                     min: match[4], 
-                    max: match[5] }
+                    max: match[5] 
+                  }
+                  /*
+                  if (match[2] === 'combo') { 
+                    console.log(' match[6] = ' + match[6])
+                    const vars = []; 
+                    for (let i = 6; i < match.length; i++) { 
+                      if (match[i] !== undefined) { 
+                        vars.push(match[i]); 
+                      } 
+                    } 
+                    defopt.vars = vars;
+                  }*/
+                  if (match[2] === 'combo' && match[6]) { 
+                    const vars = match[6].match(/var ([^\s]+)/g).map(v => v.replace('var ', '')); 
+                    defopt.vars = vars;
+                  }
                   engineData.default.push(defopt)
                 }
                 //this.engineName = parts.slice(2).join(' ');

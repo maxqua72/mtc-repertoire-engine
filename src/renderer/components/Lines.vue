@@ -568,7 +568,7 @@ export default {
 <template>
     <div class="pgn-lines-container pt-1">
         
-        <div v-for="(pv, index) of pvs" :key="index + '-' + pv.moves[0]">
+        <div v-for="(pv, index) of pvs" :key="pv.multipv">
             <PgnLine :fen="fen"
                      :uciLine="line(pv)" />
         </div>

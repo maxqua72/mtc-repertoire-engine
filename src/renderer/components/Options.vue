@@ -30,7 +30,7 @@ export default {
                 }, 300); // La durata della transizione in millisecondi 
             } 
         },
-        'mg.currEngine'() {
+        'mg.optionsUpdated'() {
             this.initOptions()
         }
     },
@@ -71,6 +71,7 @@ export default {
         
         },
         initOptions() {
+            this.options = []
             for(let def of this.mg.currEngine.default) {
                 let uciopt = new UCIOption(def)
                 for(let opt of this.mg.currEngine.options) {
@@ -88,8 +89,10 @@ export default {
         },
         saveOptions() {
             let opts = []
+            let sset = new Set()
             for(let opt of this.options) {
-                if(opt.default !== opt.value) {
+                if(opt.default !== opt.value && !sset.has(opt.name)) {
+                    sset.add(opt.name)
                     opts.push(opt.toOption())
                 }
             }
@@ -133,6 +136,17 @@ export default {
                             type="checkbox" v-model="item.value" 
                             :id="itemLabel(index)" :title="item.default">
                         <label :for="itemLabel(index)" class="form-check-label">{{ item.name }}</label>
+                    </div>
+
+                    <div v-if="item.type === 'combo' && !item.name.startsWith('UCI_')" class="mb-2" :class="{'is-changed': item.default !== item.value}">
+                        <label :for="itemLabel(index)">{{ item.name }}</label>
+                        <select class="form-select" :aria-label="item.name" v-model="item.value"
+                            :id="itemLabel(index)" :title="item.default">
+                            <option v-for="v in item.vars" :value="v">
+                                {{ v }}
+                            </option>
+                        </select>
+                        
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary w-100" @click="saveOptions">Save</button>

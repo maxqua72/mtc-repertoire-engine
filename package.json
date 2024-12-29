@@ -1,8 +1,8 @@
 {
-  "name": "prova-electron-vue",
-  "productName": "prova-electron-vue",
+  "name": "mtc-repertoire-engine",
+  "productName": "mtc-repertoire-engine",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Application to load and use local chess engines as external engine for Mind The Check Openings Repertoire",
   "main": ".vite/build/main.js",
   "type": "module",
   "scripts": {
