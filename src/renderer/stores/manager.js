@@ -13,7 +13,8 @@ export const useManagerStore = defineStore("manager", {
         notifyQueue: 0,
         minDepth: 5,
         maxPV: 1,
-        optionsUpdated: 0
+        optionsUpdated: 0,
+        optionsSaved: 0,
     }),
     getters: {
         currEngine: (state) => state.engines[state.currEngineIdx],
@@ -69,6 +70,9 @@ export const useManagerStore = defineStore("manager", {
         }, 
         notifyOptionsUpdated(){
             this.optionsUpdated = (this.optionsUpdated + 1)%64
+        },
+        notifyOptionsSaved(){
+            this.optionsSaved = (this.optionsSaved + 1)%64
         },
         notifyQueueChange(){
             this.notifyQueue = (this.notifyQueue + 1)%2048

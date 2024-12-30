@@ -88,16 +88,24 @@ export default {
             
         },
         saveOptions() {
+            let toNotify = false
             let opts = []
             let sset = new Set()
             for(let opt of this.options) {
                 if(opt.default !== opt.value && !sset.has(opt.name)) {
                     sset.add(opt.name)
                     opts.push(opt.toOption())
+                    if(opt.name === 'MultiPV' || opt.name === 'Threads'){
+                        toNotify = true
+                    }
                 }
             }
             this.mg.currEngine.options = opts
             this.mg.saveConfig()
+            if(toNotify){
+                this.mg.notifyOptionsSaved()
+            }
+            
             this.closeOffcanvas();  
         }
     },

@@ -107,6 +107,22 @@ export default {
                 this.pvs.push(result)
             }
         },
+        'mg.optionsSaved'(){
+            for(let opt of this.mg.currEngine.options){
+                if(opt.name === 'MultiPV'){
+                    if(this.nLines.value !== opt.value){
+                        this.nLines.discard = true
+                        this.nLines.value = opt.value
+                    }
+                    
+                } else if(opt.name === 'Threads'){
+                    if(this.nThreads.value !== opt.value){
+                        this.nThreads.discard = true
+                        this.nThreads.value = opt.value
+                    }
+                }
+            }
+        },
         'pos.toRun'(){
             // this.pos.fen is aasured to be valid
             this.fen = this.pos.fen
@@ -128,6 +144,10 @@ export default {
             }
         },
         'nLines.value'(){
+            if(this.nLines.discard === true){
+                this.nLines.discard = undefined
+                return
+            }
             for(let def of this.mg.currEngine.default){
                 if(def.name === 'MultiPV'){
                     //uciopt = new UCIOption(def,this.nThreads.value)
@@ -140,6 +160,10 @@ export default {
             }
         },
         'nThreads.value'(){
+            if(this.nThreads.discard === true){
+                this.nThreads.discard = undefined
+                return
+            }
             for(let def of this.mg.currEngine.default){
                 if(def.name === 'Threads'){
                     //uciopt = new UCIOption(def,this.nThreads.value)
