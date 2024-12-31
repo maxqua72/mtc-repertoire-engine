@@ -214,6 +214,8 @@ const setupGetCurrentEngine = function(ws) {
 
 }
 
+
+
 process.on('message', (message) => {
   if (message.type === 'config-value') {
     console.log(`Valore ricevuto: ${message.key} = ${message.value}`);
@@ -249,6 +251,17 @@ process.on('message', (message) => {
     }
   }
 });
+
+
+function disconnectOthers(client){
+  wss.clients.forEach((c) => {
+    console.log('disconnecting...')
+    if (c.clientId !== client.clientId && client.readyState === WebSocket.OPEN) {
+      console.log('disconnecting...' + c.clientId)
+      c.close(1000, 'Disconnected by internal client');
+    }
+  });
+};
 
 wss.on('connection', (ws) => {
   ws.clientId = uuidv4()
@@ -342,6 +355,11 @@ wss.on('connection', (ws) => {
 
     } else if (message.msgtype === 'setup.boot-engine') {
       console.log('---> setup: boot-engine ' + ws.clientId);
+      setupStartEngine(message.engine, ws)
+
+    } else if (message.msgtype === 'setup.reboot-engine') {
+      console.log('---> setup: reboot-engine ' + ws.clientId);
+      disconnectOthers(ws)
       setupStartEngine(message.engine, ws)
 
     } else if (message.msgtype === 'setup.test-engine') {

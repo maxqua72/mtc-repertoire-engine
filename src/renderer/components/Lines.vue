@@ -12,8 +12,9 @@
 //import { jsonModelStore } from '../../stores/jsonModel.js'
 //import { currentLineStore } from '../../stores/currentLine.js'
 //import { searchStore } from '../../stores/search.js'
-import { povDiff, colorFromFen, toPov, renderEval, uci2move, assessMove } from './MoveUtils.js'
+import { povDiff, colorFromFen, toPov, renderEval, uci2move, assessMove, povChances } from './MoveUtils.js'
 import PgnLine from './PgnLine.vue'
+import { useManagerStore } from '../stores/manager.js'
 //import * as layout from './LayoutUtils.js'
 
 //import { useEngineMgrStore} from "../../stores/engineMgr"
@@ -25,11 +26,8 @@ export default {
         PgnLine
     },
     setup() {
-        /*
-        const tms = useModelStore()
-        const emgr = useEngineMgrStore()
-        return { tms, emgr }
-        */
+        const mg = useManagerStore()
+        return { mg }
     },
     props: {
         pvs: {
@@ -54,6 +52,9 @@ export default {
         }
     },
     watch: {
+        pvs(){
+            this.setAutoShapes()
+        }
         /*
         'currentLineStore.runEvalCurrentLine'(){
             this.evalCurrentLine()
@@ -517,27 +518,22 @@ export default {
 
         
 
-        setAutoShapes(node) {
+        setAutoShapes() {
             /*
             if(!optionsStore.engineEnabled()){
                 this.autoShapesStore.shapes = []
                 return;
             }
-               
+            */   
             let shapes = []
-            let c = node.content.fen.includes(' w ') ? 'white' : 'black';
-            let evl = node.content.evals['lichess-depth']
-            if (evl === undefined) {
-                evl = node.content.evals['highest-depth']
-                if (evl === undefined) {
-                    // Imposta le autoshape del risultato dell'analisi stockfish local
-                    this.autoShapesStore.shapes = []
-                    return
-                }
+            let c = this.fen.includes(' w ') ? 'white' : 'black';
+            
+            if(this.pvs === undefined || this.pvs.length === 0){
+                this.mg.autoShapes.shapes = []
             }
             // Imposta le autoshape del risultato dell'analisi lichess
-            evl.pvs.forEach(pv => {
-                const shift = povDiff(c, evl.pvs[0], pv)
+            this.pvs.forEach(pv => {
+                const shift = toPov(c,povDiff(c, this.pvs[0], pv))
                 if (shift >= 0 && shift < 0.2) {
                     if (!Array.isArray(pv.moves)) {
                         // si tratta di una stringa --> la converto in array
@@ -550,14 +546,14 @@ export default {
                         move: pv.moves[0],
                         orig: mv.from,
                         dest: mv.to,
-                        brush: (evl.pvs[0].moves[0] === pv.moves[0]) ? 'paleGreen' : 'paleGrey',
+                        brush: (this.pvs[0].moves[0] === pv.moves[0]) ? 'paleGreen' : 'paleGrey',
                         modifiers: { lineWidth: Math.round(12 - shift * 50) }
                     }
                     shapes = shapes.concat(arrow)
                 }
-                this.autoShapesStore.shapes = shapes;
+                this.mg.autoShapes.shapes = shapes;
             });
-            */
+            
         },
     },
     created() {

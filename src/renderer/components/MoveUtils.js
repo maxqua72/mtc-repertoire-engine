@@ -108,7 +108,7 @@ export const povChances = function (color, cp, mate) {
 
 
 export const povDiff = function (color, e1, e2) {
-    return (povChances(color, e1.cp, e1.mate) - povChances(color, e2.cp, e2.mate)) / 2;
+    return (povChances(color, e1.score.cp, e1.score.mate) - povChances(color, e2.score.cp, e2.score.mate)) / 2;
 }
 
 export function renderEval(e) {

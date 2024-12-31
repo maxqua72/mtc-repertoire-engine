@@ -13,8 +13,10 @@ export const useManagerStore = defineStore("manager", {
         notifyQueue: 0,
         minDepth: 5,
         maxPV: 1,
+        expectedPvs: 1,
         optionsUpdated: 0,
         optionsSaved: 0,
+        autoShapes:{shapes:[]}
     }),
     getters: {
         currEngine: (state) => state.engines[state.currEngineIdx],
@@ -85,6 +87,10 @@ export const useManagerStore = defineStore("manager", {
             const wsc = useWsClientStore()
             wsc.send({msgtype: 'setup.boot-engine', engine: engineData})
         },
+        rebootEngine(engineData){
+            const wsc = useWsClientStore()
+            wsc.send({msgtype: 'setup.reboot-engine', engine: engineData})
+        },
         sendUci(ucicmd){
             const wsc = useWsClientStore()
             wsc.send({msgtype: 'uci', ucicmd: ucicmd + "\n"})
@@ -93,17 +99,23 @@ export const useManagerStore = defineStore("manager", {
             const engine = this.currEngine
             if(engine !== null){
                 let options = engine.options
+                let showWDLFound = false
                 for(let opt of options){
                     if(opt.name === 'MultiPV'){
                         this.maxPV = parseInt(opt.value)
+                    } else if(opt.name === 'UCI_ShowWDL'){
+                        showWDLFound = true
                     }
                     this.sendUci('setoption name ' + opt.name + ' value ' + opt.value) 
                 }
-                
+                if(!showWDLFound){
+                    this.sendUci('setoption name UCI_ShowWDL value true') 
+                }
             }
         },
         startEval(fen, depth){
             this.currStatus = 'evaluating'
+            this.expectedPvs = 1
             this.sendOptions()
             this.sendUci("ucinewgame")
             this.sendUci("isready")
@@ -162,6 +174,9 @@ export const useManagerStore = defineStore("manager", {
                 this.notifyChange()
                 this.notifyOptionsUpdated()
             } else if(msg.msgtype === 'setup.boot-engine-ack'){
+                console.log('Engine test started ')
+                this.sendUci("uci")
+            } else if(msg.msgtype === 'setup.reboot-engine-ack'){
                 console.log('Engine test started ')
                 this.sendUci("uci")
             } else if(msg.msgtype === 'uci.ack'){
@@ -267,7 +282,11 @@ export const useManagerStore = defineStore("manager", {
                 (result.isMate === undefined) || 
                 (result.povEv === undefined)) return null;
 
-            
+            // Track max pv index to determine when pv prints are done.
+            if (this.expectedPvs < result.multipv) this.expectedPvs = result.multipv
+
+            result.pvsReady = result.multipv === this.expectedPvs
+                           
             return result;
         },
         

@@ -71,6 +71,7 @@ export default {
         
         },
         initOptions() {
+            console.log('<<< initOptions')
             this.options = []
             for(let def of this.mg.currEngine.default) {
                 let uciopt = new UCIOption(def)
@@ -80,9 +81,10 @@ export default {
                         break
                     }
                 }
+                /*
                 if(uciopt.name === 'UCI_ShowWDL'){
                     uciopt.value = true
-                }
+                }*/
                 this.options.push(uciopt)
             }
             
@@ -95,7 +97,7 @@ export default {
                 if(opt.default !== opt.value && !sset.has(opt.name)) {
                     sset.add(opt.name)
                     opts.push(opt.toOption())
-                    if(opt.name === 'MultiPV' || opt.name === 'Threads'){
+                    if(opt.name === 'MultiPV' || opt.name === 'Threads' || opt.name === 'Hash'){
                         toNotify = true
                     }
                 }

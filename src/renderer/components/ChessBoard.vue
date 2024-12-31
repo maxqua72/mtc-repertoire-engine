@@ -1,5 +1,6 @@
 <script>
 import { Chessground } from 'chessground';
+import { useManagerStore } from '../stores/manager.js'
 import { usePositionStore } from '../stores/position.js'
 //import { sideColorStore } from '../../stores/sideColor.js'
 //import { lastEventFromBoard } from '../../stores/lastEventFromBoard.js'
@@ -61,10 +62,10 @@ export default {
         },
     },
     setup() {
-        //const mg = useManagerStore()
+        const mg = useManagerStore()
         const pos = usePositionStore()
-        //return { mg, pos }
-        return { pos }
+        return { mg, pos }
+        //return { pos }
     },
     computed: {
         fenPosition() {
@@ -136,13 +137,15 @@ export default {
                 this.lastEventFromTree.notifyAck()
             }
         },
-        'autoShapesStore.shapes'() {
-            if (this.autoShapesStore.shapes) {
+        */
+        'mg.autoShapes.shapes'() {
+            if (this.mg.autoShapes.shapes) {
                 // Converto il formato ricevuto in DrawShape
-                let autoShapes = this.autoShapesStore.shapes
+                let autoShapes = this.mg.autoShapes.shapes
                 this.board.setAutoShapes(autoShapes)
             }
         },
+        /*
         'store.sideWidth'(){
             if(layout.isBoardTraslated(store.sideWidth, store.sideHeight, this.maxSize, this.minSize, layout.MARGINX, layout.MARGINY, layout.MARGINLEFT)){
                 console.log("redrawAll 1")
