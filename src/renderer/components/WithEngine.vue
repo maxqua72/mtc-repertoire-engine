@@ -244,7 +244,7 @@ export default {
             } else {
                 this.engineUsage.mode = 'local'
             }
-            this.rebootEngine()
+            this.rebootEngine(this.engineUsage.mode)
         },
         toggleOffcanvas() {
             console.log('toggleOffcanvas: ' + this.showOffcanvas + ' -> ' + !this.showOffcanvas)
@@ -257,8 +257,8 @@ export default {
         bootEngine(){
             this.mg.bootEngine(this.engine)
         },
-        rebootEngine(){
-            this.mg.rebootEngine(this.engine)
+        rebootEngine(mode){
+            this.mg.rebootEngine(this.engine, mode)
         },
         startEval(){
             this.reset()

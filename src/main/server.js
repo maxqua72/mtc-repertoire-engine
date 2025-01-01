@@ -2,6 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { spawn } from 'child_process';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid'
+import { parse } from 'url'
 //import store from './config.js';
 
 const config = JSON.parse(process.env.CONFIG);
@@ -12,7 +13,7 @@ const wss = new WebSocketServer({ port: PORT });
 
 let engineInfo = null; //config.engines[config['current-engine']]
 let engine = null
-//console.log(JSON.stringify(store.store))
+let allowInternalOnly = false
 
 const setupBootEngine = function (currengine, ws) {
   engine = spawn(path.normalize(currengine.path + currengine.file));
@@ -256,17 +257,43 @@ process.on('message', (message) => {
 function disconnectOthers(client){
   wss.clients.forEach((c) => {
     console.log('disconnecting...')
-    if (c.clientId !== client.clientId && client.readyState === WebSocket.OPEN) {
+    if (c.clientId !== client.clientId && 
+        c.clientType === 'external' &&
+        client.clientType === 'internal' &&
+        c.readyState === WebSocket.OPEN) {
       console.log('disconnecting...' + c.clientId)
       c.close(1000, 'Disconnected by internal client');
     }
   });
 };
 
-wss.on('connection', (ws) => {
+
+
+wss.on('connection', (ws, req) => {
   ws.clientId = uuidv4()
 
-  console.log('Client connected ' + ws.clientId);
+  const parameters = parse(req.url, true); 
+  const clientType = parameters.query['client-type'];
+
+  if (clientType === 'internal') { 
+    ws.clientType = 'internal'
+    console.log('Internal client connected ' + ws.clientId); 
+  } else if (clientType === 'external'){ 
+    ws.clientType = 'external'
+    if(allowInternalOnly){
+      ws.close(1000, 'Only internal clients are allowed'); 
+      console.log('External client connection rejected'); 
+    } else {
+      console.log('External client connected ' + ws.clientId); 
+    }
+    
+  } else {
+    // reject
+    console.log('Unknown client connection rejected')
+  }
+
+  
+  //console.log('Client connected ' + ws.clientId);
   //console.log('ws client ' + JSON.stringify(ws) + ' state: ' + ws.readyState)
   
   //ws.send('connected to WebSocket!');
@@ -358,7 +385,8 @@ wss.on('connection', (ws) => {
       setupStartEngine(message.engine, ws)
 
     } else if (message.msgtype === 'setup.reboot-engine') {
-      console.log('---> setup: reboot-engine ' + ws.clientId);
+      console.log('---> setup: reboot-engine ' + ws.clientId + ' mode: ' + message.mode);
+      allowInternalOnly = (message.mode === 'local')
       disconnectOthers(ws)
       setupStartEngine(message.engine, ws)
 

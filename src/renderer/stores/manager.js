@@ -87,9 +87,9 @@ export const useManagerStore = defineStore("manager", {
             const wsc = useWsClientStore()
             wsc.send({msgtype: 'setup.boot-engine', engine: engineData})
         },
-        rebootEngine(engineData){
+        rebootEngine(engineData, mode){
             const wsc = useWsClientStore()
-            wsc.send({msgtype: 'setup.reboot-engine', engine: engineData})
+            wsc.send({msgtype: 'setup.reboot-engine', engine: engineData, mode: mode})
         },
         sendUci(ucicmd){
             const wsc = useWsClientStore()

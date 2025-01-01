@@ -10,7 +10,7 @@ export const useWsClientStore = defineStore("wsClient", {
     },
     actions: {
         init(){
-            const ws = new WebSocket('ws://localhost:28080');
+            const ws = new WebSocket('ws://localhost:28080?client-type=internal');
             this.connected = false
             ws.onopen = () => {
                 console.log("UI Client connected with wss server")
