@@ -24,7 +24,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '18.12.1' # Assicurati di utilizzare la versione di Node.js compatibile
+        node-version: '20' # Assicurati di utilizzare la versione di Node.js compatibile
 
     - name: Install dependencies
       run: npm install
@@ -41,14 +41,18 @@ jobs:
         name: build-artifacts
         path: out/
 
+    - name: Extract tag name 
+      id: extract_tag 
+      run: echo "::set-output name=TAG_NAME::${GITHUB_REF##*/}"
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ steps.extract_tag.outputs.TAG_NAME }}
+        release_name: Release ${{ steps.extract_tag.outputs.TAG_NAME }}
         draft: false
         prerelease: false
 
