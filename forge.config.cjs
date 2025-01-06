@@ -11,6 +11,7 @@ module.exports = {
       //'.env',
       //'node_modules/**/*'
     ],
+    out: 'out/make'
   },
   rebuildConfig: {},
   makers: [
@@ -20,7 +21,10 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      platforms: ['darwin','linux','win32'],
+      config: { 
+        name: 'mtc-repertoire-engine-${version}' // Genera nomi unici per ogni piattaforma
+      }
     },
     {
       name: '@electron-forge/maker-deb',

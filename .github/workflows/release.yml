@@ -58,6 +58,18 @@ jobs:
           const tagName = ref.replace('refs/tags/', ''); 
           core.setOutput('TAG_NAME', tagName);
 
+    - name: Rename artifacts with tag name 
+      if: matrix.os == 'windows-latest' 
+      run: | 
+        rename out\make\zip\win32\x64\*.zip out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip 
+        rename out\make\squirrel.windows\x64\*.nupkg out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.nupkg 
+        rename out\make\squirrel.windows\x64\*-setup.exe out\mtc-repertoire-engine-setup-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.exe 
+        
+    
+    - name: List files in out directory 
+      if: matrix.os == 'windows-latest' 
+      run: dir out\ 
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -75,6 +87,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/build-artifacts-${{ matrix.os }}.zip
-        asset_name: build-artifacts-${{ matrix.os }}.zip
+        asset_path: out/mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip
+        asset_name: mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip
         asset_content_type: application/zip
