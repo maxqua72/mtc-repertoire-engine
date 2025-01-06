@@ -67,6 +67,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/
+        asset_path: out/build-artifacts-${{ matrix.os }}.zip
         asset_name: build-artifacts-${{ matrix.os }}.zip
         asset_content_type: application/zip
