@@ -55,7 +55,7 @@ jobs:
       with: 
         script: | 
           const ref = process.env.GITHUB_REF; 
-          const tagName = ref.replace('refs/tags/', ''); 
+          const tagName = ref.replace('refs/heads/', ''); 
           core.setOutput('TAG_NAME', tagName);
 
     - name: Rename artifacts with tag name 
