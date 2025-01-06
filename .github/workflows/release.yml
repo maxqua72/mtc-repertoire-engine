@@ -63,15 +63,15 @@ jobs:
       run: |
         $zipFiles = Get-ChildItem -Path out\make\zip\win32\x64\*.zip
         foreach ($file in $zipFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\make\zip\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip")
+          Copy-Item -Path $file.FullName -Destination ("out\zip\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip")
         }
         $nupkgFiles = Get-ChildItem -Path out\make\squirrel.windows\x64\*.nupkg
         foreach ($file in $nupkgFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\make\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.nupkg")
+          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.nupkg")
         }
         $setupFiles = Get-ChildItem -Path out\make\squirrel.windows\x64\*-setup.exe
         foreach ($file in $setupFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\make\mtc-repertoire-engine-setup-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.exe")
+          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-setup-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.exe")
         }  
     
     - name: List files in out directory 
