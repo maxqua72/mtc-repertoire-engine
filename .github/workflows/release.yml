@@ -43,7 +43,12 @@ jobs:
 
     - name: Extract tag name 
       id: extract_tag 
-      run: echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      uses: actions/github-script@v6 
+      with: 
+        script: | 
+          const ref = process.env.GITHUB_REF; 
+          const tagName = ref.replace('refs/tags/', ''); 
+          core.setOutput('TAG_NAME', tagName);
 
     - name: Create Release
       id: create_release
@@ -51,8 +56,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ env.TAG_NAME }}
-        release_name: Release ${{ env.TAG_NAME }}
+        tag_name: ${{ steps.extract_tag.outputs.TAG_NAME }}
+        release_name: Release ${{ steps.extract_tag.outputs.TAG_NAME }}
         draft: true
         prerelease: false
 
