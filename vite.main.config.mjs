@@ -8,6 +8,7 @@ import path from 'path';
 import copy from 'rollup-plugin-copy';
 
 export default defineConfig({
+  
   root: path.resolve(__dirname, 'src/main'),
   build: {
     outDir: path.resolve(__dirname, '../.vite/build'),
@@ -30,4 +31,7 @@ export default defineConfig({
       ]
     },
   },
+  
+
+ 
 });

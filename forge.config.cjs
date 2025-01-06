@@ -4,6 +4,13 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    files: [ 
+      'package.json', 
+      '.vite/build/**/*', // Include i file build principali di Electron 
+      //'dist/renderer/**/*', // Include i file build del renderer di Vite
+      //'.env',
+      //'node_modules/**/*'
+    ],
   },
   rebuildConfig: {},
   makers: [
@@ -55,7 +62,8 @@ module.exports = {
     // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
-      [FuseV1Options.RunAsNode]: false,
+      //[FuseV1Options.RunAsNode]: false,
+      [FuseV1Options.RunAsNode]: true,
       [FuseV1Options.EnableCookieEncryption]: true,
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,

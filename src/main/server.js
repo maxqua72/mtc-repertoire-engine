@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { parse } from 'url'
 //import store from './config.js';
 
+console.log('Creating Web Socket Server...')
+
 const config = JSON.parse(process.env.CONFIG);
 
 
@@ -215,6 +217,11 @@ const setupGetCurrentEngine = function(ws) {
 
 }
 
+const notifyServerUp = function() {
+  process.send({ type: 'server-up'})
+
+}
+
 
 
 process.on('message', (message) => {
@@ -410,3 +417,4 @@ wss.on('connection', (ws, req) => {
 });
 
 console.log('WebSocket server is running on ws://localhost:' + PORT);
+notifyServerUp()

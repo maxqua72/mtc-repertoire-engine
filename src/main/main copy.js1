@@ -5,7 +5,6 @@ import started from 'electron-squirrel-startup';
 import { fork } from 'child_process'
 import Store from 'electron-store'
 import { fileURLToPath } from 'url'
-import fs from 'fs'
 
 // load environmental variables
 dotenv.config()
@@ -25,14 +24,8 @@ console.log("Store path: " + store.path)
 
 const gotTheLock = app.requestSingleInstanceLock(); 
 if (!gotTheLock) { 
-  console.log('Lock found ' + process.env.IS_SERVER_PROCESS)
   app.quit(); 
 } else { 
-  if (process.env.IS_SERVER_PROCESS !== 'true') {
-    console.log('Processo padre')
-  } else {
-    console.log('Processo figlio')
-  }
   app.on('second-instance', 
     (event, commandLine, workingDirectory) => { 
       // Qui puoi gestire cosa succede quando una seconda istanza viene avviata 
@@ -52,81 +45,6 @@ if(ce === undefined){
 } else {
     console.log('current-engine found: ' + ce);
 }
-
-// Start server first
-let mainWindow; 
-
-let server; 
-// Funzione per avviare il server e restituire una Promise 
-const startServer = () => { 
-  return new Promise((resolve, reject) => { 
-    console.log('Creating server...' + path.join(__dirname, 'server.js'))
-
-    const serverPath = path.join(__dirname, 'server.js'); 
-    console.log('Creating server...', serverPath); 
-    if (!fs.existsSync(serverPath)) {
-      console.error('Server file not found:', serverPath); 
-      reject(new Error('Server file not found')); 
-      return;
-    }
-
-    server = fork(path.join(__dirname, 'server.js'),[],
-                                      { env: {
-                                        ...process.env,
-                                        CONFIG:  JSON.stringify(store.store),
-                                        IS_SERVER_PROCESS: 'true'
-                                        },
-                                        stdio:'inherit'})
-    console.log('fork executed...' + JSON.stringify(server))
-    // IPC server --> main
-    server.on('message',(message) =>{
-      //const message = JSON.parse(msg)
-      if(message.type === 'server-up'){
-        console.log('Server is up.')
-        resolve()
-      } else if (message.type === 'get-config-value') {
-        const value = store.get(message.key);
-        server.send({ type: 'config-value', key: message.key, value });
-
-      } else if (message.type === 'set-config-value') {
-        store.set(message.key, message.value);
-        server.send({ type: 'config-value', key: message.key, value: message.value });
-
-      }  else if (message.type === 'set-config-engine') {
-        let engines = store.get('engines')
-        if(engines && engines.length > message.index){
-          engines[message.index][message.key] = message.value
-        }
-        store.set('engines', engines);
-        //server.send({ type: 'config-value', key: message.key, value: message.value });
-
-      } else if (message.type === 'get-config') {
-        const config = store.store;
-        server.send({ type: 'config', store: config });
-
-      } else if (message.type === 'get-available-engines') {
-        console.log('=== ===> ' + message.type + '/' + message.clientId)
-        let availableEngines = store.get('engines')
-        server.send({ type: 'get-available-engines-ack', engines: availableEngines , clientId: message.clientId});
-
-      } else if (message.type === 'get-current-engine') {
-        console.log('=== ===> ' + message.type + '/' + message.clientId)
-        let engines = store.get('engines')
-        let idx = store.get('current-engine')
-        if(engines && engines.length > idx){
-          let current = engines[idx]
-          server.send({ type: 'get-current-engine-ack', engine: current , clientId: message.clientId});
-        }
-        
-      }
-    })
-
-    server.on('error', (error) => { 
-      reject(error); 
-    });
-  })
-}
-
 
 const createWindow = () => {
   // Create the browser window.
@@ -158,7 +76,7 @@ const createWindow = () => {
 };
 
 // Server
-//let server
+let server
 
 
 
@@ -174,30 +92,21 @@ app.on('window-all-closed', () => {
   }
 });
 
-//console.log('Creating server...' + path.join(__dirname, 'server.js'))
+console.log('Creating server...' + path.join(__dirname, 'server.js'))
 
-/*
 server = fork(path.join(__dirname, 'server.js'),[],
                                       { env: {
                                         ...process.env,
                                         CONFIG:  JSON.stringify(store.store),
                                       },})
 
-*/
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(async () => {
-  console.log('App is ready...')
-  //createWindow();
-  try{
-    await startServer(); 
-    console.log('Server is ready, creating window...'); 
-    createWindow();
-  } catch (error) { 
-    console.error('Failed to start server:', error); 
-    app.quit(); 
-  }
+app.whenReady().then(() => {
+  console.log('Creating window...')
+  createWindow();
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
@@ -208,7 +117,6 @@ app.whenReady().then(async () => {
     }
   });
 
-  /*
   // IPC server --> main
   server.on('message',(message) =>{
     //const message = JSON.parse(msg)
@@ -251,7 +159,6 @@ app.whenReady().then(async () => {
       
     }
   })
-    */
 });
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.

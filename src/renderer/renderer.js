@@ -48,6 +48,8 @@ import { createPinia } from 'pinia'
 import { useManagerStore } from './stores/manager'
 import App from './App.vue';
 
+console.log('Creating App vue...')
+
 const app = createApp(App)
 
 app.use(createPinia())
