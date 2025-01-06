@@ -61,9 +61,9 @@ jobs:
     - name: Rename artifacts with tag name 
       if: matrix.os == 'windows-latest' 
       run: | 
-        rename out\make\zip\win32\x64\*.zip out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip 
-        rename out\make\squirrel.windows\x64\*.nupkg out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.nupkg 
-        rename out\make\squirrel.windows\x64\*-setup.exe out\mtc-repertoire-engine-setup-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.exe 
+        Rename-Item -Path out\make\zip\win32\x64\*.zip -NewName out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.zip 
+        Rename-Item -Path rename out\make\squirrel.windows\x64\*.nupkg -NewName out\mtc-repertoire-engine-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.nupkg 
+        Rename-Item -Path rename out\make\squirrel.windows\x64\*-setup.exe -NewName out\mtc-repertoire-engine-setup-${{ matrix.os }}-${{ steps.extract_tag.outputs.TAG_NAME }}.exe 
         
     
     - name: List files in out directory 
