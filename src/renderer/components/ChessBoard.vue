@@ -340,7 +340,7 @@ export default {
 :style="{ width: size() + 'px', height: size() + 'px' }"
 
     -->
-    <div id="ChessBoard" class="d-flex justify-content-center mt-2"  style="width:300px;height:300px">
+    <div id="ChessBoard" class="main-board d-flex justify-content-center mt-2"  style="width:300px;height:300px">
         <div id="chessground" ref="chessground" style="width:300px;height:300px;"></div>
     </div>
     
@@ -352,15 +352,15 @@ export default {
 .main-board :deep(cg-board) {
     /*background-color: #bfcfdd;*/
     /*background-color: #f0d9b5 !important;*/
-    background-image: url('/src/assets/brown.svg') !important;
+    background-image: url('/src/renderer/assets/brown.svg') !important;
 
 }
-
+/*
 .main-board {
     display: block;
     float: left
 }
-
+*/
 .box-fen {
     padding: 4px;
     border: 1px solid lightgray;

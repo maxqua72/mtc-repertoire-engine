@@ -36,12 +36,12 @@ import '@fortawesome/fontawesome-free/css/regular.css'
 
 import './assets/fonts.css'
 
-//import 'chessground/assets/chessground.base.css'
-//import 'chessground/assets/chessground.brown.css'
-//import 'chessground/assets/chessground.cburnett.css'
-import '../../../node_modules/chessground/assets/chessground.base.css'
-import '../../../node_modules/chessground/assets/chessground.brown.css'
-import '../../../node_modules/chessground/assets/chessground.cburnett.css'
+import 'chessground/assets/chessground.base.css'
+import 'chessground/assets/chessground.brown.css'
+import 'chessground/assets/chessground.cburnett.css'
+//import '../../../node_modules/chessground/assets/chessground.base.css'
+//import '../../../node_modules/chessground/assets/chessground.brown.css'
+//import '../../../node_modules/chessground/assets/chessground.cburnett.css'
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia'
