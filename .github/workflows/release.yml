@@ -18,6 +18,14 @@ jobs:
         os: [windows-latest]
 
     steps:
+    - name: Extract date and time (Windows) 
+      if: matrix.os == 'windows-latest' 
+      run: echo "TAG_NAME=$(Get-Date -Format 'yyyyMMdd-HHmmss')" >> $GITHUB_ENV
+
+    - name: Echo tagname (Windows) 
+      if: matrix.os == 'windows-latest' 
+      run: echo "$TAG_NAME ${TAG_NAME} ${{ env.TAG_NAME }} $env.TAG_NAME $env:GITHUB_PATH"
+      
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -67,6 +75,10 @@ jobs:
     - name: Extract date and time (Windows) 
       if: matrix.os == 'windows-latest' 
       run: echo "TAG_NAME=$(Get-Date -Format 'yyyyMMdd-HHmmss')" >> $GITHUB_ENV
+
+    - name: Echo tagname (Windows) 
+      if: matrix.os == 'windows-latest' 
+      run: echo "$TAG_NAME ${TAG_NAME} ${{ env.TAG_NAME }} $env.TAG_NAME $env:GITHUB_PATH"
 
     - name: Rename artifacts with tag name 
       if: matrix.os == 'windows-latest' 
