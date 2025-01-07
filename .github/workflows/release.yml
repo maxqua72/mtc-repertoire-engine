@@ -24,7 +24,7 @@ jobs:
 
     - name: Echo tagname (Windows) 
       if: matrix.os == 'windows-latest' 
-      run: echo "$TAG_NAME - ${TAG_NAME} - ${{ env.TAG_NAME }} - $env.TAG_NAME - $env:TAG_NAME - $GITHUB_ENV"
+      run: echo "$TAG_NAME - ${TAG_NAME} - ${{ env.TAG_NAME }} - $env.TAG_NAME - $env:TAG_NAME - $env:GITHUB_ENV"
       
     - name: Checkout code
       uses: actions/checkout@v2
