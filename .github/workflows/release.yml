@@ -60,23 +60,28 @@ jobs:
           core.setOutput('TAG_NAME', tagName);
 
     - name: Extract date and time 
+      if: matrix.os != 'windows-latest'
       id: extract_datetime 
       run: echo "TAG_NAME=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
+    - name: Extract date and time (Windows) 
+      if: matrix.os == 'windows-latest' 
+      run: echo "TAG_NAME=$(Get-Date -Format 'yyyyMMdd-HHmmss')" >> $GITHUB_ENV
 
     - name: Rename artifacts with tag name 
       if: matrix.os == 'windows-latest' 
       run: |
         $zipFiles = Get-ChildItem -Path out\make\zip\win32\x64\*.zip
         foreach ($file in $zipFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.zip")
+          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-$TAG_NAME.zip")
         }
         $nupkgFiles = Get-ChildItem -Path out\make\squirrel.windows\x64\*.nupkg
         foreach ($file in $nupkgFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.nupkg")
+          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-$TAG_NAME.nupkg")
         }
         $setupFiles = Get-ChildItem -Path out\make\squirrel.windows\x64\*-setup.exe
         foreach ($file in $setupFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-setup-${{ matrix.os }}-${{ env.TAG_NAME }}.exe")
+          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-setup-${{ matrix.os }}-$TAG_NAME.exe")
         }  
     
     - name: List files in out directory 
@@ -89,8 +94,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ env.TAG_NAME }}
-        release_name: Release ${{ env.TAG_NAME }}
+        tag_name: $TAG_NAME
+        release_name: Release $TAG_NAME
         draft: true
         prerelease: false
 
@@ -100,6 +105,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.zip
-        asset_name: mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.zip
+        asset_path: out/mtc-repertoire-engine-${{ matrix.os }}-$TAG_NAME.zip
+        asset_name: mtc-repertoire-engine-${{ matrix.os }}-$TAG_NAME.zip
         asset_content_type: application/zip
