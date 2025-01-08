@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+//import dotenv from 'dotenv';
 import { app, BrowserWindow , ipcMain, dialog } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
@@ -8,11 +8,16 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 
 // load environmental variables
-dotenv.config()
+//dotenv.config()
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
+
+const isDev = process.env.NODE_ENV === 'development'; 
+let MAIN_WINDOW_VITE_DEV_SERVER_URL = undefined
+if(isDev)
+  MAIN_WINDOW_VITE_DEV_SERVER_URL = process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL || 'http://localhost:5174'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -141,12 +146,11 @@ const createWindow = () => {
   if(process.env.MAIN_WINDOW_VITE_NAME === undefined){
     process.env.MAIN_WINDOW_VITE_NAME = 'main_window'
   }
-  
 
   // and load the index.html of the app.
-  if (process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    console.log('MAIN_WINDOW_VITE_DEV_SERVER_URL: ' + process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL)
-    mainWindow.loadURL(process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    console.log('MAIN_WINDOW_VITE_DEV_SERVER_URL: ' + MAIN_WINDOW_VITE_DEV_SERVER_URL)
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     console.log('MAIN_WINDOW_VITE_NAME:' + process.env.MAIN_WINDOW_VITE_NAME)
     mainWindow.loadFile(path.join(__dirname, '../renderer/' + process.env.MAIN_WINDOW_VITE_NAME + '/index.html'));
