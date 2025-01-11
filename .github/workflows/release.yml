@@ -46,11 +46,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Production Dependencies 
-      run: npm ci --only=production 
+    #- name: Install Production Dependencies 
+    #  run: npm ci --only=production 
     
-    - name: Prune Dev Dependencies 
-      run: npm prune --production
+    #- name: Prune Dev Dependencies 
+    #  run: npm prune --production
 
     #- name: Build the app
     #  run: npm run build
@@ -60,6 +60,9 @@ jobs:
 
     - name: Package the app
       run: npx electron-forge make
+
+    - name: Prune Dev Dependencies in `resources/node_modules` 
+      run: npm prune --production --prefix=resources
 
     - name: List files in out directory 
       if: matrix.os == 'windows-latest' 
