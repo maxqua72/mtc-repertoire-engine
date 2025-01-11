@@ -1,15 +1,21 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const path = require('path');
 
 module.exports = {
   packagerConfig: {
     asar: true,
-    files: [ 
+    
+    extraResource: [ 
+        './node_modules'
+    ],
+    
+    files1: [ 
       'package.json', 
       '.vite/build/**/*', // Include i file build principali di Electron 
       //'dist/renderer/**/*', // Include i file build del renderer di Vite
       //'.env',
-      //'node_modules/**/*'
+      'node_modules/**/*'
     ],
     out: 'out/make'
   },
@@ -17,7 +23,10 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        authors: 'max',
+        description: 'Application to load and use local chess engines as external engine for Mind The Check Openings Repertoire'
+      }
     },
     {
       name: '@electron-forge/maker-zip',
