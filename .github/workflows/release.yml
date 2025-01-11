@@ -46,6 +46,12 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Install Production Dependencies 
+      run: npm ci --only=production 
+    
+    - name: Prune Dev Dependencies 
+      run: npm prune --production
+
     #- name: Build the app
     #  run: npm run build
 
