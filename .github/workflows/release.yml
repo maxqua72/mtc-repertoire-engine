@@ -2,149 +2,112 @@ name: Release
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  release:
-    types: [ created ]
+    tags:
+      - 'v*' # Triggerato quando viene pushato un tag che inizia con "v" (es. v1.0.0)
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-
+  release:
+    name: Create Release
+    runs-on: ${{ matrix.os }} # Esegue il job su diverse OS
     strategy:
       matrix:
-        #os: [ubuntu-latest, windows-latest, macos-latest]
+        #os: [windows-latest, macos-latest, ubuntu-latest] 
         os: [windows-latest]
+        arch: [x64]
 
     steps:
-    - name: Set TAG_NAME
-      if: 1 == 2 
-      run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Extract date and time (Windows) 
-      if: matrix.os == 'windows-latest' 
-      run: echo "TAG_NAME=$(Get-Date -Format 'yyyyMMdd-HHmmss')" >> $env:GITHUB_ENV
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-    - name: Extract date and time 
-      if: matrix.os != 'windows-latest'
-      id: extract_datetime 
-      run: echo "TAG_NAME=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: npm ci # o yarn install o pnpm install
 
-    - name: Echo TAG_NAME (Windows) 
-      if: matrix.os == 'windows-latest' 
-      run: echo "TAG_NAME = ${{ env.TAG_NAME }}"
-      
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Build with Electron Forge
+        run: npm run make
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20' # Assicurati di utilizzare la versione di Node.js compatibile
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: ${{ contains(github.ref, '-draft') }}
+          prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-rc') }} # Imposta prerelease se il tag contiene -beta o -rc
 
-    - name: Install dependencies
-      run: npm install
+      - name: Ottieni la versione dal tag
+        id: get_version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-    #- name: Install Production Dependencies 
-    #  run: npm ci --only=production 
-    
-    #- name: Prune Dev Dependencies 
-    #  run: npm prune --production
+      - name: Upload Release Assets (Windows - Squirrel)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/squirrel.windows/mtc-repertoire-engine-Setup-${{ steps.get_version.outputs.VERSION }}.exe
+          asset_name: mtc-repertoire-engine-Setup-${{ steps.get_version.outputs.VERSION }}.exe # Versione nell'installer
+          asset_content_type: application/vnd.microsoft.portable-executable
+      - name: Upload Release Assets (Windows - Squirrel nupkg)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/squirrel.windows/mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}-full.nupkg
+          asset_name: mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}-full.nupkg #Versione e architettura
+          asset_content_type: application/zip
 
-    #- name: Build the app
-    #  run: npm run build
+      - name: Upload Release Assets (Windows - ZIP)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/zip/win32/x64/mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip # Aggiunta la versione
+          asset_content_type: application/zip
 
-    #- name: Package the app
-    #  run: npm run make
+      - name: Upload Release Assets (Windows - MSI)
+        if: matrix.os == 'windows-latest' && false
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/wix/mtc-repertoire-engine-win32-${{ matrix.arch }}.msi
+          asset_name: mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.msi #Aggiunta la versione
+          asset_content_type: application/vnd.msi
 
-    - name: Package the app
-      run: npx electron-forge make
+      - name: Upload Release Assets (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/mtc-repertoire-engine-darwin-${{ matrix.arch }}/mtc-repertoire-engine-darwin-${{ matrix.arch }}.zip
+          asset_name: mtc-repertoire-engine-darwin-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip # Aggiunta la versione
+          asset_content_type: application/zip
 
-    - name: Prune Dev Dependencies in `resources/node_modules` 
-      run: npm prune --production --prefix=resources
+      - name: Upload Release Assets (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/mtc-repertoire-engine-linux-${{ matrix.arch }}/mtc-repertoire-engine-linux-${{ matrix.arch }}.zip
+          asset_name: mtc-repertoire-engine-linux-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip # Aggiunta la versione
+          asset_content_type: application/zip
 
-    - name: List files in out directory 
-      if: matrix.os == 'windows-latest' 
-      run: dir out\ 
-      
-    - name: List files in out directory 
-      if: matrix.os != 'windows-latest' 
-      run: ls -la out/
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: out/
-
-    - name: Extract tag name 
-      id: extract_tag 
-      if: 1 == 2
-      uses: actions/github-script@v6 
-      with: 
-        script: | 
-          const ref = process.env.GITHUB_REF; 
-          const tagName = ref.replace('refs/heads/', ''); 
-          core.setOutput('TAG_NAME', tagName);
-
-    - name: Rename artifacts with tag name 
-      if: matrix.os == 'windows-latest' 
-      run: |
-        $zipFiles = Get-ChildItem -Path out\make\zip\win32\x64\*.zip
-        foreach ($file in $zipFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.zip")
-        }
-        $nupkgFiles = Get-ChildItem -Path out\make\squirrel.windows\x64\*.nupkg
-        foreach ($file in $nupkgFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.nupkg")
-        }
-        $setupFiles = Get-ChildItem -Path out\make\squirrel.windows\x64\*Setup.exe
-        foreach ($file in $setupFiles) {
-          Copy-Item -Path $file.FullName -Destination ("out\mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}-setup.exe")
-        }  
-    
-    - name: List files in out directory 
-      if: matrix.os == 'windows-latest' 
-      run: dir out\ 
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        tag_name: ${{ env.TAG_NAME }}
-        release_name: Release ${{ env.TAG_NAME }}
-        draft: true
-        prerelease: false
-
-    - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.zip
-        asset_name: mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.zip
-        asset_content_type: application/zip
-
-    - name: Upload .nupkg Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.nupkg
-        asset_name: mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}.nupkg
-        asset_content_type: application/octet-stream
-
-    - name: Upload -setup.exe Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}-setup.exe
-        asset_name: mtc-repertoire-engine-${{ matrix.os }}-${{ env.TAG_NAME }}-setup.exe
-        asset_content_type: application/vnd.microsoft.portable-executable

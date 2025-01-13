@@ -5,10 +5,14 @@
   "description": "Application to load and use local chess engines as external engine for Mind The Check Openings Repertoire",
   "main": ".vite/build/main.js",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxqua72/mtc-repertoire-engine.git"
+  },
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "set VITE_CJS_TRACE=true && electron-forge make --verbose",
+    "make": "electron-forge make --verbose",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
     "postbuild": "cp ./src/main/server.js ./.vite/build/server.js"
