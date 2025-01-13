@@ -1,7 +1,7 @@
 {
   "name": "mtc-repertoire-engine",
   "productName": "mtc-repertoire-engine",
-  "version": "1.0.0",
+  "version": "1.0.0-draft",
   "description": "Application to load and use local chess engines as external engine for Mind The Check Openings Repertoire",
   "main": ".vite/build/main.js",
   "type": "module",
