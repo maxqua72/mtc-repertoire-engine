@@ -62,9 +62,9 @@ jobs:
           asset_path: ./out/make/squirrel.windows/x64/mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }} Setup.exe
           asset_name: mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }} Setup.exe # Versione nell'installer
           asset_content_type: application/vnd.microsoft.portable-executable
-
+      
       - name: Upload Release Assets (Windows - Squirrel nupkg)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && false
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
