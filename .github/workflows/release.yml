@@ -55,9 +55,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./out/make/squirrel.windows/mtc-repertoire-engine-Setup-${{ steps.get_version.outputs.VERSION }}.exe
-          asset_name: mtc-repertoire-engine-Setup-${{ steps.get_version.outputs.VERSION }}.exe # Versione nell'installer
+          asset_path: ./out/make/squirrel.windows/x64/mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }} Setup.exe
+          asset_name: mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }} Setup.exe # Versione nell'installer
           asset_content_type: application/vnd.microsoft.portable-executable
+
       - name: Upload Release Assets (Windows - Squirrel nupkg)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-release-asset@v1
@@ -65,9 +66,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./out/make/squirrel.windows/mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}-full.nupkg
-          asset_name: mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}-full.nupkg #Versione e architettura
-          asset_content_type: application/zip
+          asset_path: ./out/make/squirrel.windows/x64/mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg
+          asset_name: mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg #Versione e architettura
+          asset_content_type: application/octet-stream
 
       - name: Upload Release Assets (Windows - ZIP)
         if: matrix.os == 'windows-latest'
