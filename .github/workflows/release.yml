@@ -25,7 +25,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci # o yarn install o pnpm install
+        run: npm ci 
 
       - name: Build with Electron Forge
         run: npm run make
