@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           # Copia il file zip
-          cp -r ./out/make/zip/win32/x64/mtc-repertoire-engine-win32-${{ matrix.arch }}.zip ./out/assets/
+          cp -r ./out/make/zip/win32/x64/*.zip ./out/assets/
           # Copia i file di Squirrel (Setup.exe e nupkg)
           cp -r ./out/make/squirrel.windows/x64/*.exe ./out/assets/
           cp -r ./out/make/squirrel.windows/x64/*.nupkg ./out/assets/
