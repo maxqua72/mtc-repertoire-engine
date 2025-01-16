@@ -44,11 +44,10 @@ jobs:
         shell: bash
         run: |
           # Copia il file zip
+          mkdir -p ./out/assets
           cp -r ./out/make/zip/win32/x64/*.zip ./out/assets/
-          # Copia i file di Squirrel (Setup.exe e nupkg)
           cp -r ./out/make/squirrel.windows/x64/*.exe ./out/assets/
           cp -r ./out/make/squirrel.windows/x64/*.nupkg ./out/assets/
-          # Copia il file MSI
           #cp -r ./out/make/wix/*.msi ./out/assets/ 
       
       - name: List files in out directory 
