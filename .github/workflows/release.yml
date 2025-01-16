@@ -39,6 +39,23 @@ jobs:
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+      - name: Copia gli asset di Windows
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          # Copia il file zip
+          cp -r ./out/make/mtc-repertoire-engine-win32-${{ matrix.arch }}.zip ./out/assets/
+          # Copia i file di Squirrel (Setup.exe e nupkg)
+          cp -r ./out/make/squirrel.windows/*.exe ./out/assets/
+          cp -r ./out/make/squirrel.windows/*.nupkg ./out/assets/
+          # Copia il file MSI
+          #cp -r ./out/make/wix/*.msi ./out/assets/ 
+      
+      - name: List files in out directory 
+        if: matrix.os == 'windows-latest' 
+        run: dir out\assets 
+  
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -50,7 +67,17 @@ jobs:
           draft: ${{ contains(github.ref, '-draft') }}
           prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-rc') }} # Imposta prerelease se il tag contiene -beta o -rc
 
-      
+      - name: Upload Release Assets (Windows - ZIP)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/zip/win32/x64/mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip # Aggiunta la versione
+          asset_content_type: application/zip
+  
 
       - name: Upload Release Assets (Windows - Squirrel)
         if: matrix.os == 'windows-latest'
@@ -64,7 +91,7 @@ jobs:
           asset_content_type: application/vnd.microsoft.portable-executable
       
       - name: Upload Release Assets (Windows - Squirrel nupkg)
-        if: matrix.os == 'windows-latest' && false
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -74,17 +101,7 @@ jobs:
           asset_name: mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg #Versione e architettura
           asset_content_type: application/octet-stream
 
-      - name: Upload Release Assets (Windows - ZIP)
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./out/make/zip/win32/x64/mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_name: mtc-repertoire-engine-win32-${{ matrix.arch }}-${{ steps.get_version.outputs.VERSION }}.zip # Aggiunta la versione
-          asset_content_type: application/zip
-
+      
       - name: Upload Release Assets (Windows - MSI)
         if: matrix.os == 'windows-latest' && false
         uses: actions/upload-release-asset@v1
