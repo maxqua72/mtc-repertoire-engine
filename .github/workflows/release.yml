@@ -48,6 +48,8 @@ jobs:
           cp -r ./out/make/zip/win32/x64/*.zip ./out/assets/
           cp -r ./out/make/squirrel.windows/x64/*.exe ./out/assets/
           cp -r ./out/make/squirrel.windows/x64/*.nupkg ./out/assets/
+          mv ./out/assets/mtc-repertoire_engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg ./out/assets/mtc-repertoire-engine-1.0.0-draft-full.nupkg || exit 1
+    
           #cp -r ./out/make/wix/*.msi ./out/assets/ 
       
       - name: List files in out directory 
