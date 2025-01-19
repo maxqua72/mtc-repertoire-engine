@@ -20,11 +20,12 @@ export async function checkForUpdates() { // Esporta la funzione come asincrona
   });
 
   autoUpdater.on('update-available', (info) => {
-    log.info('Update available:', info.version);
+    log.info('Update available');
+    
     dialog.showMessageBox({
       type: 'info',
       title: 'Aggiornamento disponibile',
-      message: `È disponibile una nuova versione (${info.version}). L'applicazione verrà scaricata in background.`,
+      message: `È disponibile una nuova versione. L'applicazione verrà scaricata in background.`,
     });
   });
 
