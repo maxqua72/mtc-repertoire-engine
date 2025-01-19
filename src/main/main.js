@@ -1,5 +1,5 @@
 //import dotenv from 'dotenv';
-import { app, BrowserWindow , ipcMain, dialog } from 'electron';
+import { app, BrowserWindow , ipcMain, dialog, Menu, MenuItem } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { fork } from 'child_process'
@@ -133,6 +133,98 @@ const startServer = () => {
   })
 }
 
+function printMenu(menu) {
+  if (!menu) {
+    console.log("Menu is null or undefined");
+    return;
+  }
+
+  console.log("Menu:");
+  if (menu.items) {
+    menu.items.forEach((item, index) => {
+      console.log(`  Item ${index}:`);
+      console.log(`    Label: ${item.label}`);
+      console.log(`    Type: ${item.type}`);
+      if (item.submenu) {
+        console.log("    Submenu:");
+        item.submenu.items.forEach((subItem, subIndex) => {
+            console.log(`      SubItem ${subIndex}:`);
+            console.log(`        Label: ${subItem.label}`);
+            console.log(`        Type: ${subItem.type}`);
+        })
+      }
+      console.log("----");
+    });
+  }
+}
+
+function createMenu() {
+  const defaultMenu = Menu.getApplicationMenu();
+
+  printMenu(defaultMenu)
+
+  let helpMenu = defaultMenu ? defaultMenu.items.find(item => item.label === 'Help') : null;
+  let descr = 'MindTheCheck Repertoire Engine is a companion to MindTheCheck Openings Repertiore (OR).\n' +
+              'It allows the use of external chess engines (engines other than the one provided internally by OR) in External Usage mode. ' +
+              'In Local Usage mode, it analyzes positions provided by FEN strings. Engine options can be modified and saved for future analyses.\n\n'
+
+  const aboutMenuItem = {
+    label: 'About',
+    click: () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'About',
+        message: descr + `Version: ${app.getVersion()}`,
+      });
+    }
+  };
+
+  if (helpMenu) {
+    if (!helpMenu.submenu) {
+      helpMenu.submenu = new Menu();
+    }
+    if (helpMenu.submenu.items.length > 0) {
+      helpMenu.submenu.append(new MenuItem({ type: 'separator' }));
+    }
+    helpMenu.submenu.append(new MenuItem(aboutMenuItem));
+  } else {
+    // Se il menu "Help" non esiste, crealo e aggiungi "About"
+    const newHelpMenu = new MenuItem({
+      label: 'Help',
+      submenu: [new MenuItem(aboutMenuItem)]
+    });
+    defaultMenu.append(newHelpMenu);
+  }
+
+  /*
+  let helpMenuIndex = defaultMenu.items.findIndex(item => item.label === 'Help');
+
+  for(let it of defaultMenu.items){ console.log('item: ' + it.label)}
+
+  if (helpMenuIndex !== -1) {
+    // Rimuovi completamente il menu "Help" esistente
+    console.log('Rimozione menu con indice ' + helpMenuIndex + ' items: ' + defaultMenu.items.length)
+    defaultMenu.items.splice(helpMenuIndex, 1);
+    for(let it of defaultMenu.items){ console.log('item: ' + it.label)}
+  }
+
+  console.log('indice ' + helpMenuIndex + ' items: ' + defaultMenu.items.length)
+
+  //Crea un nuovo menu help con solo la voce about
+  const newHelpMenu = new MenuItem({
+      label: 'Help',
+      submenu: [aboutMenuItem]
+    });
+  //defaultMenu.append(newHelpMenu)
+
+  Menu.setApplicationMenu(defaultMenu);
+
+  const defaultMenu2 = Menu.getApplicationMenu();
+  for(let it of defaultMenu2.items){ console.log('item: ' + it.label)}
+*/
+
+
+}
 
 const createWindow = () => {
   // Create the browser window.
@@ -162,6 +254,9 @@ const createWindow = () => {
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
+
+  // Customize menu
+  createMenu();
 };
 
 // Server
