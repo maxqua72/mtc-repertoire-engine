@@ -201,7 +201,7 @@ app.whenReady().then(async () => {
     await startServer(); 
     console.log('Server is ready, creating window...'); 
     createWindow();
-    checkForUpdates();
+    if(!isDev) checkForUpdates();
   } catch (error) { 
     console.error('Failed to start server:', error); 
     app.quit(); 

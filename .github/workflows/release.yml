@@ -70,7 +70,7 @@ jobs:
           prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-rc') }} # Imposta prerelease se il tag contiene -beta o -rc
 
       - name: Upload Release Assets (Windows - ZIP)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && false
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
