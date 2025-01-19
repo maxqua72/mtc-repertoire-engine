@@ -12,10 +12,10 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make --verbose",
+    "make": "set VITE_CJS_TRACE=true && electron-forge make --verbose",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "postbuild": "cp ./src/main/server.js ./.vite/build/server.js"
+    "postbuild": "cp ./src/main/server.js ./.vite/build/server.js && cp ./src/main/updater.js ./.vite/build/updater.js"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",

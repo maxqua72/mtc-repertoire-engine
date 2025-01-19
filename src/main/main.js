@@ -6,6 +6,7 @@ import { fork } from 'child_process'
 import Store from 'electron-store'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
+import { checkForUpdates } from './updater.js'; 
 
 // load environmental variables
 //dotenv.config()
@@ -200,6 +201,7 @@ app.whenReady().then(async () => {
     await startServer(); 
     console.log('Server is ready, creating window...'); 
     createWindow();
+    checkForUpdates();
   } catch (error) { 
     console.error('Failed to start server:', error); 
     app.quit(); 

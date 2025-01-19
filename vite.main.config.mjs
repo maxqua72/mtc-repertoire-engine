@@ -25,7 +25,8 @@ export default defineConfig({
         copy({
           targets: [
             { src: 'src/main/main.js', dest: '.vite/build' },
-            { src: 'src/main/server.js', dest: '.vite/build' }
+            { src: 'src/main/server.js', dest: '.vite/build' },
+            { src: 'src/main/updater.js', dest: '.vite/build' }
           ]
         })
       ]
