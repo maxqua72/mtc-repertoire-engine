@@ -64,7 +64,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
           release_name: Release ${{ steps.get_version.outputs.VERSION }}
           draft: ${{ contains(github.ref, '-draft') }}
           prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-rc') }} # Imposta prerelease se il tag contiene -beta o -rc
