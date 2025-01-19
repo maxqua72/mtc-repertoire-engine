@@ -49,9 +49,6 @@ jobs:
           cp -r ./out/make/squirrel.windows/x64/*.exe ./out/assets/
           cp -r ./out/make/squirrel.windows/x64/*.nupkg ./out/assets/
           cp ./out/make/squirrel.windows/x64/RELEASES ./out/assets/
-          mv ./out/assets/mtc_repertoire_engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg ./out/assets/mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg || exit 1
-    
-          #cp -r ./out/make/wix/*.msi ./out/assets/ 
       
       - name: List files in out directory 
         if: matrix.os == 'windows-latest' 
@@ -99,8 +96,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./out/assets/mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg
-          asset_name: mtc-repertoire-engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg #Versione e architettura
+          asset_path: ./out/assets/mtc_repertoire_engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg
+          asset_name: mtc_repertoire_engine-${{ steps.get_version.outputs.VERSION }}-full.nupkg #Versione e architettura
           asset_content_type: application/octet-stream
       
       - name: Upload Release Assets (Windows - Squirrel RELEASES)
