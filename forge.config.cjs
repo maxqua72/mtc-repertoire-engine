@@ -12,7 +12,7 @@ module.exports = {
         
         console.log('Hook postPackage: Copia e pruning di node_modules...');
 
-        const resourcesPath = path.join(options.outputPaths[0], 'resources', 'app');
+        const resourcesPath = path.join(options.outputPaths[0], 'resources');
         const nodeModulesDest = path.join(resourcesPath, 'node_modules');
         
         const tmpPath = path.join('out','tmpdir');
@@ -27,7 +27,7 @@ module.exports = {
         await fs.copy(path.join(__dirname, 'package-lock.json'), path.join(tmpPath, 'package-lock.json'));
         
         
-        // Esegui npm prune nella cartella resources/app/node_modules
+        // Esegui npm prune nella cartella nodeModulesTmp
         execSync('npm prune --production', { cwd: nodeModulesTmp, stdio: 'inherit' });
         await fs.copy(nodeModulesTmp, nodeModulesDest);
         console.log('copia da ' + nodeModulesTmp + ' in ' + nodeModulesDest);
