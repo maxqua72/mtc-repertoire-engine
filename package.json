@@ -1,7 +1,7 @@
 {
   "name": "mtc-repertoire-engine",
   "productName": "mtc-repertoire-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Application to load and use local chess engines as external engine for MindTheCheck Openings Repertoire",
   "main": ".vite/build/main.js",
   "type": "module",
@@ -12,7 +12,7 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "set VITE_CJS_TRACE=true && electron-forge make --verbose",
+    "make": "electron-forge make --verbose",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
     "postbuild": "cp ./src/main/server.js ./.vite/build/server.js && cp ./src/main/updater.js ./.vite/build/updater.js"
