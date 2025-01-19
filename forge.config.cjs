@@ -87,7 +87,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        authors: 'max',
+        authors: 'maxqua72',
         description: 'Application to load and use local chess engines as external engine for Mind The Check Openings Repertoire'
       }
     },
