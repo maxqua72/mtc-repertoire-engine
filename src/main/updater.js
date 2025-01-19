@@ -7,7 +7,9 @@ console.log('App starting...');
 //console.log('Current version:', app.getVersion());
 
 const server = 'https://update.electronjs.org';
-const feed = `${server}/maxqua72/mtc-repertoire-engine/${process.platform}-${process.arch}/${app.getVersion()}`
+//const feed = `${server}/maxqua72/mtc-repertoire-engine/${process.platform}-${process.arch}/${app.getVersion()}`
+const feed = `${server}/maxqua72/mtc-repertoire-engine/${process.platform}/${app.getVersion()}/RELEASES`
+
 
 console.log('feed:', feed);
 
