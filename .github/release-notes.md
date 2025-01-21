@@ -17,4 +17,4 @@ In questa modalità il motore analizza le posizioni fornite nel campo _FEN_ in b
 ## Istallazione
 Scaricare il file 
 ```mtc-repertoire-engine-<versione> Setup.exe```
-Il file non è firmato quindi Windows apre una finestra di sicurezza, nella quale occorre scegliere
+Il file non è firmato quindi Windows Defender apre una finestra di sicurezza, nella quale occorre scegliere "Più informazioni" e poi premere sul bottone "Esegui comunque".
