@@ -65,6 +65,7 @@ jobs:
           release_name: Release ${{ steps.get_version.outputs.VERSION }}
           draft: ${{ contains(github.ref, '-draft') }}
           prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-rc') }} # Imposta prerelease se il tag contiene -beta o -rc
+          body_path: .github/release-notes.md
 
       - name: Upload Release Assets (Windows - ZIP)
         if: matrix.os == 'windows-latest' && false
