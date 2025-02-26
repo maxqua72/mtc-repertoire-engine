@@ -394,10 +394,12 @@ export default {
         </div>
         <div v-if="isUsageExternal()" class="text-center mt-3 mx-4">
             <div class="d-flex flex-column justify-content-center align-items-center">
+                <!--
                 <div class="input-group mt-2 mtc-max-600">
                     <label class="input-group-text" for="id-depth">Depth</label>
                     <input id="id-depth" type="number" class="form-control text-center" placeholder="Depth" aria-label="Depth" v-model="depth" min="1" max="100">
                 </div>
+                -->
                 <div class="input-group mt-2 mtc-max-600" v-if="nLines.show">
                     <label class="input-group-text" for="id-lines">Lines</label>
                     <input id="id-lines" type="number" class="form-control text-center" placeholder="num of lines" aria-label="Lines" v-model="nLines.value" min="1" :max="nLines.max">

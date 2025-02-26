@@ -15,6 +15,8 @@ Se il software è in questa modalità, è possibile attivare lo switch "_Motore 
 In questa modalità il motore analizza le posizioni fornite nel campo _FEN_ in base alla configurazione del motore. Si tratta di una interfaccia per motori che, oltre a visualizzare la valutazione in centipawns, fornisce anche la stima delle probabilità di vittoria, patta e sconfitta (_WDL_).
 
 ## Istallazione
-Scaricare il file 
+Scaricare il file dall'elenco degli Assets qui sotto:
 ```mtc-repertoire-engine-<versione> Setup.exe```
-Il file non è firmato quindi Windows Defender apre una finestra di sicurezza, nella quale occorre scegliere "Più informazioni" e poi premere sul bottone "Esegui comunque".
+Il file non è firmato quindi Windows Defender apre una finestra di sicurezza, nella quale occorre scegliere "Ulteriori informazioni" e poi premere sul bottone "Esegui comunque".
+
+Successivamente, al primo avvio, al messaggio: Vuoi consentire alle reti pubbliche e private di accedere a questa app? Rispondere "Acconsento".

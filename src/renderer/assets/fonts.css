@@ -5,5 +5,5 @@
     font-style: normal;
     font-display: auto;
     unicode-range: U+000-5FF;
-    src: local("lichess.chess"), url("src/renderer/assets/fonts/lichess.chess.woff2") format("woff2");
+    src: local("lichess.chess"), url("./fonts/lichess.chess.woff2") format("woff2");
   }

@@ -28,6 +28,8 @@ export default {
                 setTimeout(() => { 
                     this.previouslyOpen = false; 
                 }, 300); // La durata della transizione in millisecondi 
+            } else {
+                //this.initOptions()
             } 
         },
         'mg.optionsUpdated'() {

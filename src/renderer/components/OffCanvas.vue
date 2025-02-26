@@ -42,6 +42,7 @@ export default {
         handleItemClick(index) { 
             this.mg.setCurrEngineByIdx(index); 
             this.closeOffcanvas();  
+            this.mg.notifyOptionsUpdated()
         },
         async chooseFile() {
             //this.$refs.inputfile.click();
